@@ -1,0 +1,31 @@
+@startuml
+
+header activity diagram
+title D-Bus watcher flow
+
+start
+:Start thread for DBus client to listen on;
+fork
+    :Wait for termination;
+    :Signal termination to thread;
+    :Wait until thread joined;
+fork again    
+    :Connect to DBus object;
+    if (Connection successful?) then (yes)
+        :Setup listening with DBus object;
+        if (Setup successful?) then (yes)
+            repeat
+                :Wait until lock events occurs;
+                :Notify lock event observed;
+            repeat while (no termination signaled)
+            :Cleanup;
+        else (no)
+            end
+        endif
+    else (no)
+        end
+    endif    
+end fork
+stop
+
+@enduml
