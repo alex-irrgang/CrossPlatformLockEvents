@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("CrossPlatformLockEvents")]
-[assembly: AssemblyDescription("CrossPlatformLockEvents enables cross-platform auto locking mechanisms.")]
+[assembly: AssemblyDescription("CrossPlatformLockEvents brings cross-platform auto locking mechanisms to KeePass.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Alexander Irrgang")]
 [assembly: AssemblyProduct("KeePass Plugin")]
