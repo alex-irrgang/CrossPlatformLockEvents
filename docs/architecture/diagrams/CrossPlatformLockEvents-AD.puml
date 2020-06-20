@@ -1,0 +1,16 @@
+@startuml
+
+header activity diagram
+title CrossPlatformLockEvents plugin flow
+
+start
+:Read configuration and setup UI;
+:Start watching for lock events;
+repeat
+    :Wait for lock event;
+    :Lock all documents ;
+repeat while (Termination not requested?)
+:Stop watching for lock events;
+stop
+
+@enduml
