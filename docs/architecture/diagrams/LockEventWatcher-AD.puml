@@ -1,0 +1,25 @@
+@startuml
+
+header activity diagram
+title LockEventWatcher execution flow
+
+start
+:Start thread for watcher logic;
+fork
+    :Wait for termination;
+    :Signal termination to thread;
+    :Wait until thread joined;
+fork again
+    :Initialization;
+    if (Initialized?) then (yes)
+        repeat
+            :Run;
+        repeat while (no termination signal received)
+        :Shutdown;
+    else (no)
+        end
+    endif
+end fork
+stop
+
+@enduml
