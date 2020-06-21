@@ -1,15 +1,14 @@
 ﻿using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("CrossPlatformLockEvents")]
-[assembly: AssemblyDescription("CrossPlatformLockEvents brings cross-platform auto locking mechanisms to KeePass.")]
+[assembly: AssemblyTitle("CrossPlatformLockEventsTests")]
+[assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Alexander Irrgang")]
-[assembly: AssemblyProduct("KeePass Plugin")]
+[assembly: AssemblyCompany("")]
+[assembly: AssemblyProduct("CrossPlatformLockEventsTests")]
 [assembly: AssemblyCopyright("Copyright ©  2020")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +19,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("A829FB92-6DF1-4DA3-88E2-284BE75CB0C7")]
+[assembly: Guid("AC58A85A-E896-4614-8048-2DEF36C811E1")]
 
 // Version information for an assembly consists of the following four values:
 //
@@ -34,5 +33,3 @@ using System.Runtime.InteropServices;
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("1.0.0.0")]
 [assembly: AssemblyFileVersion("1.0.0.0")]
-
-[assembly: InternalsVisibleTo("CrossPlatformLockEventsTests")]

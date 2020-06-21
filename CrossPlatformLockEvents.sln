@@ -2,6 +2,8 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CrossPlatformLockEvents", "src\CrossPlatformLockEvents\CrossPlatformLockEvents.csproj", "{10A086D8-8F5D-48FD-97F1-B422B70FFE73}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CrossPlatformLockEventsTests", "tests\CrossPlatformLockEventsTests\CrossPlatformLockEventsTests.csproj", "{AC58A85A-E896-4614-8048-2DEF36C811E1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +14,9 @@ Global
 		{10A086D8-8F5D-48FD-97F1-B422B70FFE73}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{10A086D8-8F5D-48FD-97F1-B422B70FFE73}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{10A086D8-8F5D-48FD-97F1-B422B70FFE73}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AC58A85A-E896-4614-8048-2DEF36C811E1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AC58A85A-E896-4614-8048-2DEF36C811E1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AC58A85A-E896-4614-8048-2DEF36C811E1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AC58A85A-E896-4614-8048-2DEF36C811E1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
