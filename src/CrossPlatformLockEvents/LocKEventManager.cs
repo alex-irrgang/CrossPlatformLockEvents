@@ -1,18 +1,21 @@
 using System;
 using System.Collections.Generic;
 using CrossPlatformLockEvents.DBus;
+using KeePass.Plugins;
 
 namespace CrossPlatformLockEvents
 {
     internal class LocKEventManager
     {
+        private readonly List<ILockEventWatcher> _lockEventWatchers;
         private readonly Func<bool> _lockOnScreensaver;
         private readonly Func<bool> _lockOnSuspend;
-        private readonly List<ILockEventWatcher> _lockEventWatchers;
+        private readonly IPluginHost _pluginHost;
 
 
-        public LocKEventManager(Func<bool> lockOnScreensaver, Func<bool> lockOnSuspend)
+        public LocKEventManager(IPluginHost pluginHost, Func<bool> lockOnScreensaver, Func<bool> lockOnSuspend)
         {
+            _pluginHost = pluginHost;
             _lockOnScreensaver = lockOnScreensaver;
             _lockOnSuspend = lockOnSuspend;
 
@@ -22,15 +25,23 @@ namespace CrossPlatformLockEvents
         public void Initialize()
         {
             _lockEventWatchers.Add(new SystemdLogindSuspendWatcher());
+
+            foreach (var lockEventWatcher in _lockEventWatchers)
+            {
+                lockEventWatcher.LockEventObserved += LockEventWatcherOnLockEventObserved;
+                lockEventWatcher.StartWatching();
+            }
+        }
+
+        private void LockEventWatcherOnLockEventObserved(object sender, EventArgs e)
+        {
+            _pluginHost.MainWindow.LockAllDocuments();
         }
 
         public void Terminate()
         {
-            foreach (var lockEventWatcher in _lockEventWatchers)
-            {
-                lockEventWatcher.Dispose();
-            }
-            
+            foreach (var lockEventWatcher in _lockEventWatchers) lockEventWatcher.Dispose();
+
             _lockEventWatchers.Clear();
         }
     }

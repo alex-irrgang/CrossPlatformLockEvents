@@ -5,16 +5,18 @@ using KeePass.Plugins;
 namespace CrossPlatformLockEvents
 {
     /// <summary>
-    /// CrossPlatformLockEvents enables cross-platform auto locking mechanisms.
+    ///     CrossPlatformLockEvents enables cross-platform auto locking mechanisms.
     /// </summary>
     // ReSharper disable once UnusedType.Global
     public sealed class CrossPlatformLockEventsExt : Plugin
     {
-        private const string LockOnScreensaverConfigKey = "io.github.alex-irrgang.CrossPlatformLockEvents.LockOnScreensaver";
+        private const string LockOnScreensaverConfigKey =
+            "io.github.alex-irrgang.CrossPlatformLockEvents.LockOnScreensaver";
+
         private const string LockOnSuspendConfigKey = "io.github.alex-irrgang.CrossPlatformLockEvents.LockOnSuspend";
-        
-        private IPluginHost _pluginHost;
         private LocKEventManager _lockEventManager;
+
+        private IPluginHost _pluginHost;
         public bool LockOnScreensaver { get; private set; }
         public bool LockOnSuspend { get; private set; }
 
@@ -27,9 +29,9 @@ namespace CrossPlatformLockEvents
             LockOnScreensaver = _pluginHost.CustomConfig.GetBool(LockOnScreensaverConfigKey, true);
             LockOnSuspend = _pluginHost.CustomConfig.GetBool(LockOnSuspendConfigKey, true);
 
-            _lockEventManager = new LocKEventManager(() => LockOnScreensaver, () => LockOnSuspend);
+            _lockEventManager = new LocKEventManager(_pluginHost, () => LockOnScreensaver, () => LockOnSuspend);
             _lockEventManager.Initialize();
-            
+
             return true;
         }
 
@@ -41,7 +43,7 @@ namespace CrossPlatformLockEvents
         public override ToolStripMenuItem GetMenuItem(PluginMenuType menuType)
         {
             if (menuType != PluginMenuType.Main) return null;
-            
+
             var mainLevel = new ToolStripMenuItem {Text = "CrossPlatformLockEvents Settings"};
 
             var screensaverLock = new ToolStripMenuItem
@@ -54,8 +56,8 @@ namespace CrossPlatformLockEvents
 
             var suspendLock = new ToolStripMenuItem
             {
-                Text = "Lock on Suspend", 
-                CheckOnClick = true, 
+                Text = "Lock on Suspend",
+                CheckOnClick = true,
                 Checked = LockOnSuspend
             };
             suspendLock.CheckedChanged += SuspendLockOnCheckedChanged;
@@ -64,7 +66,6 @@ namespace CrossPlatformLockEvents
             mainLevel.DropDownItems.Add(suspendLock);
 
             return mainLevel;
-
         }
 
         private void SuspendLockOnCheckedChanged(object sender, EventArgs e)

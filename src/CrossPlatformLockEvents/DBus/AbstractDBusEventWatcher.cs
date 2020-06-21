@@ -6,10 +6,15 @@ namespace CrossPlatformLockEvents.DBus
 {
     internal abstract class AbstractDBusEventWatcher : ILockEventWatcher
     {
-        protected int LoopTimeout = 100;
-        private readonly Thread _dbusThread;
         private readonly ManualResetEvent _dbusStopEvent;
-        protected Bus _bus;
+        private readonly Thread _dbusThread;
+        private bool _disposed;
+        protected Bus DBus;
+
+        /// <summary>
+        ///     How long to wait in the main loop for the shutdown event.
+        /// </summary>
+        protected int LoopTimeout = 100;
 
         protected AbstractDBusEventWatcher()
         {
@@ -17,38 +22,87 @@ namespace CrossPlatformLockEvents.DBus
             _dbusStopEvent = new ManualResetEvent(false);
         }
 
-        /// <summary>
-        /// Implementation will be called cyclically. No bus iteration or thread handling is required.
-        /// </summary>
-        protected abstract void Run();
-
-        /// <summary>
-        /// Handle thread exit.
-        /// </summary>
-        private void RunWrapper()
+        public void StartWatching()
         {
-            while (!_dbusStopEvent.WaitOne(TimeSpan.FromMilliseconds(LoopTimeout)))
-            {
-                _bus.Iterate();
-                Run();
-            }
-        }
-        
-        public void Dispose()
-        {
-            _dbusStopEvent.Set();
-            _dbusThread.Join();
-        }
-
-        public void Initialize()
-        {
-            InitializeDBus();
+            InitializeBusImpl();
             _dbusThread.Start();
         }
 
+        public event EventHandler LockEventObserved;
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
         /// <summary>
-        /// Shall initialize the required D-Bus type, i.e. session bus, or system bus or custom bus.
+        ///     Call in RunImp() when an event was detected.
         /// </summary>
-        protected abstract void InitializeDBus();
+        protected void OnLockEventObserved()
+        {
+            LockEventObserved?.Invoke(this, EventArgs.Empty);
+        }
+
+        /// <summary>
+        ///     Set this.DBus to the required D-DBus, i.e. system or session bus.
+        /// </summary>
+        protected abstract void InitializeBusImpl();
+
+        /// <summary>
+        ///     Implementation will be called right after starting the thread.
+        /// </summary>
+        protected abstract void InitializeImpl();
+
+        /// <summary>
+        ///     Implementation will be called cyclically. No bus iteration or thread handling is required.
+        /// </summary>
+        protected abstract void RunImpl();
+
+        /// <summary>
+        ///     Implementation will be called right before exiting the thread.
+        /// </summary>
+        protected abstract void ShutdownImpl();
+
+        /// <summary>
+        ///     Handle thread exit.
+        /// </summary>
+        private void RunWrapper()
+        {
+            try
+            {
+                InitializeImpl();
+
+                while (!_dbusStopEvent.WaitOne(TimeSpan.FromMilliseconds(LoopTimeout)))
+                {
+                    DBus.Iterate();
+                    RunImpl();
+                }
+
+                ShutdownImpl();
+            }
+            catch (Exception e)
+            {
+                // TODO: Error logging
+            }
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (_disposed) return;
+
+            if (disposing)
+            {
+                _dbusStopEvent.Set();
+                _dbusThread.Join();
+            }
+
+            _disposed = true;
+        }
+
+        ~AbstractDBusEventWatcher()
+        {
+            Dispose(false);
+        }
     }
 }

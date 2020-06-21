@@ -3,13 +3,13 @@ using NDesk.DBus;
 namespace CrossPlatformLockEvents.DBus
 {
     /// <summary>
-    /// Uses a system bus.
+    ///     Uses a system bus.
     /// </summary>
-    abstract class AbstractDBusSystemBusEventWatcher : AbstractDBusEventWatcher
+    internal abstract class AbstractDBusSystemBusEventWatcher : AbstractDBusEventWatcher
     {
-        protected override void InitializeDBus()
+        protected override void InitializeBusImpl()
         {
-            _bus = Bus.System;
+            DBus = Bus.System;
         }
     }
 }

@@ -1,13 +1,23 @@
-using Mono.Unix.Native;
+using System;
 
 namespace CrossPlatformLockEvents.DBus
 {
     internal class SystemdLogindSuspendWatcher : AbstractDBusSystemBusEventWatcher
     {
-        protected override void Run()
+        protected override void InitializeImpl()
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
+        }
+
+        protected override void RunImpl()
+        {
+            throw new NotImplementedException();
             //Syscall.close()
+        }
+
+        protected override void ShutdownImpl()
+        {
+            throw new NotImplementedException();
         }
     }
 }
