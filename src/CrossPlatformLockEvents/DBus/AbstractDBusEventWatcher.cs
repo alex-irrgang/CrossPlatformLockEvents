@@ -8,6 +8,7 @@ namespace CrossPlatformLockEvents.DBus
     {
         private readonly ManualResetEvent _dbusStopEvent;
         private readonly Thread _dbusThread;
+        private bool _started;
         private bool _disposed;
         protected Bus DBus;
 
@@ -28,7 +29,7 @@ namespace CrossPlatformLockEvents.DBus
             _dbusThread.Start();
         }
 
-        public event EventHandler LockEventObserved;
+        public event EventHandler<LockEventArgs> LockEventObserved;
 
         public void Dispose()
         {
@@ -39,9 +40,9 @@ namespace CrossPlatformLockEvents.DBus
         /// <summary>
         ///     Call in RunImp() when an event was detected.
         /// </summary>
-        protected void OnLockEventObserved()
+        protected void OnLockEventObserved(LockEventArgs lockEventArgs)
         {
-            LockEventObserved?.Invoke(this, EventArgs.Empty);
+            LockEventObserved?.Invoke(this, lockEventArgs);
         }
 
         /// <summary>
@@ -60,7 +61,7 @@ namespace CrossPlatformLockEvents.DBus
         protected abstract void RunImpl();
 
         /// <summary>
-        ///     Implementation will be called right before exiting the thread.
+        ///     Implementation will be called right before exiting the thread. This method shall not throw.
         /// </summary>
         protected abstract void ShutdownImpl();
 
@@ -77,13 +78,15 @@ namespace CrossPlatformLockEvents.DBus
                 {
                     DBus.Iterate();
                     RunImpl();
-                }
-
-                ShutdownImpl();
+                }                
             }
             catch (Exception e)
             {
                 // TODO: Error logging
+            }
+            finally
+            {
+                ShutdownImpl();
             }
         }
 

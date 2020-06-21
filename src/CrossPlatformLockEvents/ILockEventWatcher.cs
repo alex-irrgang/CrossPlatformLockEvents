@@ -14,6 +14,6 @@ namespace CrossPlatformLockEvents
 
         /// <summary>
         /// </summary>
-        event EventHandler LockEventObserved;
+        event EventHandler<LockEventArgs> LockEventObserved;
     }
 }

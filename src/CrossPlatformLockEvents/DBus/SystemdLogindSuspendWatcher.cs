@@ -1,4 +1,5 @@
 using System;
+using NDesk.DBus;
 
 namespace CrossPlatformLockEvents.DBus
 {

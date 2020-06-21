@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Windows.Forms;
+using CrossPlatformLockEvents.DBus;
 using KeePass.Plugins;
 
 namespace CrossPlatformLockEvents
@@ -14,11 +17,10 @@ namespace CrossPlatformLockEvents
             "io.github.alex-irrgang.CrossPlatformLockEvents.LockOnScreensaver";
 
         private const string LockOnSuspendConfigKey = "io.github.alex-irrgang.CrossPlatformLockEvents.LockOnSuspend";
-        private LocKEventManager _lockEventManager;
-
+        
         private IPluginHost _pluginHost;
-        public bool LockOnScreensaver { get; private set; }
-        public bool LockOnSuspend { get; private set; }
+        private readonly List<ILockEventWatcher> _lockEventWatchers = new List<ILockEventWatcher>();
+        private readonly Dictionary<LockEventType, bool> _lockEventTypeEnabled = new Dictionary<LockEventType, bool>();
 
         public override bool Initialize(IPluginHost host)
         {
@@ -26,18 +28,42 @@ namespace CrossPlatformLockEvents
 
             _pluginHost = host;
 
-            LockOnScreensaver = _pluginHost.CustomConfig.GetBool(LockOnScreensaverConfigKey, true);
-            LockOnSuspend = _pluginHost.CustomConfig.GetBool(LockOnSuspendConfigKey, true);
+            _lockEventTypeEnabled.Add(LockEventType.Screensaver,
+                _pluginHost.CustomConfig.GetBool(LockOnScreensaverConfigKey, true));
+            _lockEventTypeEnabled.Add(LockEventType.Suspend,
+                _pluginHost.CustomConfig.GetBool(LockOnSuspendConfigKey, true));
 
-            _lockEventManager = new LocKEventManager(_pluginHost, () => LockOnScreensaver, () => LockOnSuspend);
-            _lockEventManager.Initialize();
+            InitializeLockEventWatchers();
 
             return true;
         }
 
+        private void InitializeLockEventWatchers()
+        {
+            _lockEventWatchers.Add(new SystemdLogindSuspendWatcher());
+
+            foreach (var lockEventWatcher in _lockEventWatchers)
+            {
+                lockEventWatcher.LockEventObserved += LockEventWatcherOnLockEventObserved;
+                lockEventWatcher.StartWatching();
+            }
+        }
+
+        private void LockEventWatcherOnLockEventObserved(object sender, LockEventArgs e)
+        {
+            if (_lockEventTypeEnabled[e.ObservedEvent]) _pluginHost.MainWindow.LockAllDocuments();
+        }
+
         public override void Terminate()
         {
-            _lockEventManager.Terminate();
+            try
+            {
+                foreach (var lockEventWatcher in _lockEventWatchers) lockEventWatcher.Dispose();
+            }
+            catch (Exception e)
+            {
+                // TODO: logging
+            }
         }
 
         public override ToolStripMenuItem GetMenuItem(PluginMenuType menuType)
@@ -50,7 +76,7 @@ namespace CrossPlatformLockEvents
             {
                 Text = "Lock on Screensaver",
                 CheckOnClick = true,
-                Checked = LockOnScreensaver
+                Checked = _lockEventTypeEnabled[LockEventType.Screensaver]
             };
             screensaverLock.CheckedChanged += ScreensaverLockOnCheckedChanged;
 
@@ -58,7 +84,7 @@ namespace CrossPlatformLockEvents
             {
                 Text = "Lock on Suspend",
                 CheckOnClick = true,
-                Checked = LockOnSuspend
+                Checked = _lockEventTypeEnabled[LockEventType.Suspend]
             };
             suspendLock.CheckedChanged += SuspendLockOnCheckedChanged;
 
@@ -73,8 +99,8 @@ namespace CrossPlatformLockEvents
             var suspendLockMenuItem = sender as ToolStripMenuItem;
             if (suspendLockMenuItem == null) return;
 
-            LockOnSuspend = suspendLockMenuItem.Checked;
-            _pluginHost.CustomConfig.SetBool(LockOnSuspendConfigKey, LockOnSuspend);
+            _lockEventTypeEnabled[LockEventType.Suspend] = suspendLockMenuItem.Checked;
+            _pluginHost.CustomConfig.SetBool(LockOnSuspendConfigKey, suspendLockMenuItem.Checked);
         }
 
         private void ScreensaverLockOnCheckedChanged(object sender, EventArgs e)
@@ -82,8 +108,8 @@ namespace CrossPlatformLockEvents
             var screensaverLockMenuItem = sender as ToolStripMenuItem;
             if (screensaverLockMenuItem == null) return;
 
-            LockOnScreensaver = screensaverLockMenuItem.Checked;
-            _pluginHost.CustomConfig.SetBool(LockOnScreensaverConfigKey, LockOnScreensaver);
+            _lockEventTypeEnabled[LockEventType.Screensaver] = screensaverLockMenuItem.Checked;
+            _pluginHost.CustomConfig.SetBool(LockOnScreensaverConfigKey, screensaverLockMenuItem.Checked);
         }
     }
 }

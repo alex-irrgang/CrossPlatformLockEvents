@@ -54,7 +54,8 @@
     <Compile Include="DBus\SystemdLogindSuspendWatcher.cs" />
     <Compile Include="ILockEventWatcher.cs" />
     <Compile Include="CrossPlatformLockEventsExt.cs" />
-    <Compile Include="LocKEventManager.cs" />
+    <Compile Include="LockEventArgs.cs" />
+    <Compile Include="LockEventType.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
