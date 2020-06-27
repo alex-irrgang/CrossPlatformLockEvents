@@ -1,0 +1,42 @@
+@startuml
+
+header class diagram
+title CrossPlatformLockEvents class diagram
+
+KeePass.Plugins.Plugin <|-- CrossPlatformLockEvents.CrossPlatformLockEventsExt
+
+together {
+    interface CrossPlatformLockEvents.ILockEventWatcher <<interface>> {
+        StartWatching()
+        event LockEventObserved
+    }
+    class CrossPlatformLockEvents.LockEventArgs {
+        LockEventType ObservedEvent
+    }
+    enum CrossPlatformLockEvents.LockEventType <<enumeration>> {
+        Screensaver
+        Suspend
+    }
+}
+
+CrossPlatformLockEvents.CrossPlatformLockEventsExt o-- "*" CrossPlatformLockEvents.ILockEventWatcher
+CrossPlatformLockEvents.ILockEventWatcher <|-- CrossPlatformLockEvents.DBus.AbstractDBusLockEventWatcher
+
+namespace CrossPlatformLockEvents.DBus {
+    abstract class AbstractDBusLockEventWatcher <<abstract>>
+    interface IDBusFactory <<interface>> {
+        NDesk.DBus.Connection GetConnection()
+    }
+
+    AbstractDBusLockEventWatcher <|-- SystemdLogindSuspendWatcher
+    AbstractDBusLockEventWatcher <|-- FreeDesktopScreensaverLockWatcher
+    AbstractDBusLockEventWatcher <|-- GnomeScreensaverLockWatcher
+
+    AbstractDBusLockEventWatcher -> IDBusFactory
+
+    IDBusFactory <|-- SystemDBusFactory
+    IDBusFactory <|-- SessionDBusFactory
+    IDBusFactory <|- CrossPlatformLockEventsTest.DBus.TestDBusFactory
+}
+
+@enduml

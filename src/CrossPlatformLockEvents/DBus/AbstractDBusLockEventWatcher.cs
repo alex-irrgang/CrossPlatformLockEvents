@@ -4,28 +4,28 @@ using NDesk.DBus;
 
 namespace CrossPlatformLockEvents.DBus
 {
-    internal abstract class AbstractDBusEventWatcher : ILockEventWatcher
+    internal abstract class AbstractDBusLockEventWatcher : ILockEventWatcher
     {
         private readonly ManualResetEvent _dbusStopEvent;
         private readonly Thread _dbusThread;
         private bool _started;
         private bool _disposed;
-        protected Bus DBus;
+        protected readonly Connection DBusConnection;
 
         /// <summary>
         ///     How long to wait in the main loop for the shutdown event.
         /// </summary>
         protected int LoopTimeout = 100;
 
-        protected AbstractDBusEventWatcher()
+        protected AbstractDBusLockEventWatcher(IDBusFactory dbusFactory)
         {
+            DBusConnection = dbusFactory.GetConnection();
             _dbusThread = new Thread(RunWrapper);
             _dbusStopEvent = new ManualResetEvent(false);
         }
 
         public void StartWatching()
         {
-            InitializeBusImpl();
             _dbusThread.Start();
         }
 
@@ -44,11 +44,6 @@ namespace CrossPlatformLockEvents.DBus
         {
             LockEventObserved?.Invoke(this, lockEventArgs);
         }
-
-        /// <summary>
-        ///     Set this.DBus to the required D-DBus, i.e. system or session bus.
-        /// </summary>
-        protected abstract void InitializeBusImpl();
 
         /// <summary>
         ///     Implementation will be called right after starting the thread.
@@ -76,7 +71,7 @@ namespace CrossPlatformLockEvents.DBus
 
                 while (!_dbusStopEvent.WaitOne(TimeSpan.FromMilliseconds(LoopTimeout)))
                 {
-                    DBus.Iterate();
+                    DBusConnection.Iterate();
                     RunImpl();
                 }                
             }
@@ -98,12 +93,13 @@ namespace CrossPlatformLockEvents.DBus
             {
                 _dbusStopEvent.Set();
                 _dbusThread.Join();
+                DBusConnection.Close();
             }
 
             _disposed = true;
         }
 
-        ~AbstractDBusEventWatcher()
+        ~AbstractDBusLockEventWatcher()
         {
             Dispose(false);
         }

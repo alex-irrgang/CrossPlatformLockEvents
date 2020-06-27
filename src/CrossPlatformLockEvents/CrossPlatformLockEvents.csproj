@@ -48,9 +48,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DBus\AbstractDBusEventWatcher.cs" />
-    <Compile Include="DBus\AbstractDBusSessionBusEventWatcher.cs" />
-    <Compile Include="DBus\AbstractDBusSystemBusEventWatcher.cs" />
+    <Compile Include="DBus\AbstractDBusLockEventWatcher.cs" />
+    <Compile Include="DBus\IDBusFactory.cs" />
+    <Compile Include="DBus\SessionDBusFactory.cs" />
+    <Compile Include="DBus\SystemDBusFactory.cs" />
     <Compile Include="DBus\SystemdLogindSuspendWatcher.cs" />
     <Compile Include="ILockEventWatcher.cs" />
     <Compile Include="CrossPlatformLockEventsExt.cs" />
